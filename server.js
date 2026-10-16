@@ -541,7 +541,6 @@ app.post('/api/auth/login', sameOriginOnly, loginLimiter, (req, res) => {
   if (!password || !constantTimeEqual(password, APP_PASSWORD)) {
     return res.status(401).json({ error: 'The password was not accepted.' });
   }
-  // Keep the in-memory session table bounded; this app is intended for a private, single-instance deployment.
   if (sessions.size > 5000) {
     const now = Date.now();
     for (const [id, session] of sessions.entries()) if (session.expiresAt <= now) sessions.delete(id);
@@ -597,6 +596,12 @@ app.post('/api/generate', sameOriginOnly, requireAuth, requireCsrf, generationLi
 
     stage = 'video';
     emit({ type: 'progress', step: 2, state: 'active', message: 'Trying video engine…' });
+    
+    // Heartbeat mechanism to prevent Render load balancers from dropping long-running connections
+    const heartbeat = setInterval(() => {
+      emit({ type: 'progress', step: 2, state: 'active', message: 'Rendering video (this takes a few minutes)...' });
+    }, 25000);
+
     let mediaAsset;
     let source = 'Hugging Face';
     try {
@@ -604,12 +609,14 @@ app.post('/api/generate', sameOriginOnly, requireAuth, requireCsrf, generationLi
       const videoProviderUrl = await tryHuggingFace(cinematicPrompt, (await getBufferForAsset(keyframe.imageAssetUrl)), preset);
       mediaAsset = { kind: 'remote', url: videoProviderUrl, contentType: 'video/mp4' };
     } catch (hfError) {
-      // Provider details stay in server logs; they are never sent with credentials to the browser.
       console.warn(`[generation] Hugging Face failed for preset ${model}: ${String(hfError?.message || 'unknown error').slice(0, 180)}`);
       emit({ type: 'progress', step: 2, state: 'active', message: 'Trying video fallback…' });
       mediaAsset = await tryPollinationsVideo(cinematicPrompt, ratio, keyframe.providerImageUrl);
       source = 'Pollinations fallback';
+    } finally {
+      clearInterval(heartbeat);
     }
+
     if (mediaAsset.kind === 'remote') validateProviderUrl(mediaAsset.url);
     const videoAssetUrl = createAsset(mediaAsset);
     emit({ type: 'video', url: videoAssetUrl, downloadUrl: `${videoAssetUrl}?download=1`, source });
@@ -633,7 +640,6 @@ app.post('/api/generate', sameOriginOnly, requireAuth, requireCsrf, generationLi
   }
 });
 
-// Resolve the private, in-memory keyframe asset for the Gradio upload without exposing its provider URL.
 async function getBufferForAsset(urlPath) {
   const match = /^\/api\/assets\/([a-f0-9]{36})$/.exec(urlPath);
   if (!match) throw new Error('Generated image reference was invalid');
