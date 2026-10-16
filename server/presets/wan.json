@@ -1,0 +1,22 @@
+{
+  "space": "kulkas2pintu/wan777",
+  "endpoint": "/generate_video",
+  "payload": {
+    "input_image": "{{IMAGE_URL}}",
+    "last_image": "{{IMAGE_URL}}",
+    "prompt": "{{PROMPT}}",
+    "steps": 4,
+    "negative_prompt": "static, blurry, low quality",
+    "duration_seconds": 3.5,
+    "guidance_scale": 1,
+    "guidance_scale_2": 1,
+    "seed": 42,
+    "randomize_seed": true,
+    "quality": 6,
+    "scheduler": "FlowMatchEulerDiscrete",
+    "flow_shift": 3,
+    "frame_multiplier": "16",
+    "video_component": true,
+    "safe_mode": true
+  }
+}

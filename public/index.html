@@ -6,23 +6,32 @@
   <meta name="description" content="AI Cinema Studio — create cinematic keyframes and attempt AI video generation in your browser.">
   <title>AI Cinema Studio</title>
   <link rel="stylesheet" href="style.css">
-  <script type="importmap">
-    {
-      "imports": {
-        "@gradio/client": "https://cdn.jsdelivr.net/npm/@gradio/client/+esm"
-      }
-    }
-  </script>
-  <script type="module" src="app.js"></script>
+  <script src="app.js" defer></script>
 </head>
 <body>
+  <section id="login-screen" class="login-screen" aria-labelledby="login-title">
+    <form id="login-form" class="login-card">
+      <div class="brand login-brand"><span class="brand-mark">✦</span><span>AI CINEMA <b>STUDIO</b></span></div>
+      <p class="eyebrow">PRIVATE CREATOR WORKSPACE</p>
+      <h1 id="login-title">Welcome back.</h1>
+      <p class="login-copy">Sign in to access your video studio. Provider credentials stay on the server.</p>
+      <label for="login-password">Workspace password</label>
+      <input id="login-password" type="password" autocomplete="current-password" minlength="1" maxlength="256" required placeholder="Enter your workspace password">
+      <button id="login-button" class="primary-button" type="submit"><span class="button-star">✦</span><span id="login-label">Unlock studio</span><span class="button-arrow">↗</span></button>
+      <p id="login-error" class="error-box" role="alert" hidden></p>
+      <p class="privacy-note">🔒 Private session · Secure, server-managed API credentials</p>
+    </form>
+  </section>
   <div class="app-shell">
     <header class="topbar">
       <a class="brand" href="#" aria-label="AI Cinema Studio home">
         <span class="brand-mark">✦</span>
         <span>AI CINEMA <b>STUDIO</b></span>
       </a>
-      <span class="topbar-note"><span class="status-dot"></span> Browser-based creative lab</span>
+      <div class="topbar-actions">
+        <span class="topbar-note"><span class="status-dot"></span> Private creative lab</span>
+        <button id="logout-button" class="logout-button" type="button">Sign out</button>
+      </div>
     </header>
 
     <main>
@@ -49,8 +58,8 @@
 
             <label for="modelPreset">AI Video Engine</label>
             <select id="modelPreset">
-              <option value="wan">Wan 2.2 (kulkas2pintu/wan777)</option>
-              <option value="ltx">LTX 2.3 Eros (00000tt/LTX-2.3-10Eros)</option>
+              <option value="wan">Wan video engine</option>
+              <option value="ltx">LTX video engine</option>
             </select>
 
             <label for="aspect-ratio">Video format</label>
@@ -59,27 +68,15 @@
               <option value="9:16">YouTube Shorts · 9:16</option>
             </select>
 
-            <details class="advanced" open>
-              <summary>API settings <span>Keys stay in this browser session</span></summary>
-              <label for="gemini-key">Google Gemini API key <em>Required</em></label>
-              <input id="gemini-key" type="password" autocomplete="off" placeholder="AIza…" required>
-              <label for="pollinations-key">Pollinations API key <em>May be required</em></label>
-              <input id="pollinations-key" type="password" autocomplete="off" placeholder="pk_… or sk_…">
-              <label for="hf-token">Hugging Face token <em>Optional for public Spaces</em></label>
-              <input id="hf-token" type="password" autocomplete="off" placeholder="hf_…">
-              <label for="hf-space">Hugging Face Space ID</label>
-              <input id="hf-space" type="text" value="" placeholder="owner/compatible-video-space">
-              <label for="hf-endpoint">Gradio API endpoint</label>
-              <input id="hf-endpoint" type="text" value="/predict" placeholder="/predict">
-              <label for="hf-payload">Gradio payload JSON</label>
-              <textarea id="hf-payload" rows="3" spellcheck="false">{"prompt":"{{PROMPT}}","image":"{{IMAGE_URL}}"}</textarea>
-              <p class="field-hint">Replace the payload fields to match the Space's “View API” page. Supported tokens: <code>{{PROMPT}}</code> and <code>{{IMAGE_URL}}</code>. The default payload is only a starting point; Space APIs differ.</p>
-            </details>
+            <div class="secure-config-note">
+              <span class="secure-lock" aria-hidden="true">⌑</span>
+              <div><strong>API credentials are server-managed</strong><p>Keys are configured once in your host's private environment settings. They are not requested here, sent to the browser, or stored in this repository.</p></div>
+            </div>
 
             <button id="generate-btn" class="primary-button" type="submit">
               <span class="button-star">✦</span><span id="button-label">Generate video</span><span class="button-arrow">↗</span>
             </button>
-            <p class="privacy-note"><span>ⓘ</span> Keys are not saved by this page. Requests go directly to the selected providers.</p>
+            <p class="privacy-note"><span>ⓘ</span> Your prompt goes through the private backend. Never share your workspace password.</p>
           </form>
         </aside>
 

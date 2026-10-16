@@ -1,0 +1,22 @@
+{
+  "name": "ai-cinema-studio-secure",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Private single-origin AI Cinema Studio with server-side provider credentials.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js",
+    "check": "node --check server.js && node --check public/app.js"
+  },
+  "dependencies": {
+    "@gradio/client": "^2.7.1",
+    "dotenv": "^16.6.1",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.1",
+    "helmet": "^8.1.0"
+  }
+}

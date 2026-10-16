@@ -129,3 +129,34 @@ footer { display: flex; justify-content: space-between; gap: 15px; padding: 28px
   .step-icon { width: 28px; height: 28px; }
   footer { font-size: 8px; }
 }
+
+/* Access gate and server-managed credentials */
+body:not(.authenticated) .app-shell { display: none; }
+body.authenticated .login-screen { display: none; }
+.login-screen {
+  min-height: 100vh; display: grid; place-items: center; padding: 24px;
+  background: radial-gradient(ellipse at 15% 0%, rgba(111,78,190,.15), transparent 34rem),
+              radial-gradient(ellipse at 90% 25%, rgba(185,255,102,.06), transparent 32rem), var(--bg);
+}
+.login-card {
+  width: min(100%, 420px); padding: 32px; border: 1px solid var(--line); border-radius: 18px;
+  background: rgba(17,21,30,.96); box-shadow: 0 25px 90px rgba(0,0,0,.35);
+}
+.login-brand { margin-bottom: 40px; }
+.login-card h1 { font-size: 36px; letter-spacing: -.055em; margin: 0; }
+.login-copy { color: var(--muted); font-size: 12px; line-height: 1.8; margin: 12px 0 25px; }
+.login-card .primary-button { margin-top: 20px; }
+.login-card .privacy-note { margin-top: 15px; }
+.login-card .error-box { margin-top: 14px; }
+.topbar-actions { display:flex; align-items:center; gap:16px; }
+.logout-button { border:1px solid #343c4b; border-radius:8px; background:transparent; color:#cbd2df; padding:8px 10px; font-size:10px; cursor:pointer; }
+.logout-button:hover { color:var(--accent); border-color:#526a36; }
+.secure-config-note { display:flex; gap:12px; align-items:flex-start; margin-top:22px; padding:14px; border:1px solid #303b2b; border-radius:10px; background:#111a10; }
+.secure-lock { display:grid; place-items:center; flex:0 0 28px; height:28px; border-radius:8px; color:#10150b; background:var(--accent); font-weight:900; }
+.secure-config-note strong { display:block; color:#e0e8d7; font-size:11px; }
+.secure-config-note p { color:#9ba794; font-size:10px; line-height:1.7; margin:6px 0 0; }
+@media (max-width: 520px) {
+  .login-card { padding:23px; }
+  .topbar-actions { gap:10px; }
+  .topbar-note { display:none; }
+}
