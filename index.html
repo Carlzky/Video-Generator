@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="AI Cinema Studio — create cinematic keyframes and attempt AI video generation in your browser.">
+  <title>AI Cinema Studio</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "@gradio/client": "https://cdn.jsdelivr.net/npm/@gradio/client/+esm"
+      }
+    }
+  </script>
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="topbar">
+      <a class="brand" href="#" aria-label="AI Cinema Studio home">
+        <span class="brand-mark">✦</span>
+        <span>AI CINEMA <b>STUDIO</b></span>
+      </a>
+      <span class="topbar-note"><span class="status-dot"></span> Browser-based creative lab</span>
+    </header>
+
+    <main>
+      <section class="hero">
+        <p class="eyebrow">YOUR IDEA, FRAME BY FRAME</p>
+        <h1>Make something<br><span>cinematic.</span></h1>
+        <p class="hero-copy">Expand a simple idea, create a keyframe, then try to bring it to life with an AI video model.</p>
+      </section>
+
+      <section class="workspace">
+        <aside class="panel controls">
+          <div class="panel-heading">
+            <div>
+              <p class="eyebrow">CONTROL ROOM</p>
+              <h2>New creation</h2>
+            </div>
+            <span class="step-count">01 — 03</span>
+          </div>
+
+          <form id="generator-form">
+            <label for="prompt">Describe your scene</label>
+            <textarea id="prompt" rows="4" minlength="3" maxlength="700" required placeholder="A lone astronaut discovers a glowing garden beneath the ice of Europa..."></textarea>
+            <p class="field-hint">Tip: describe the subject, setting, atmosphere, and camera movement.</p>
+
+            <label for="modelPreset">AI Video Engine</label>
+            <select id="modelPreset">
+              <option value="wan">Wan 2.2 (kulkas2pintu/wan777)</option>
+              <option value="ltx">LTX 2.3 Eros (00000tt/LTX-2.3-10Eros)</option>
+            </select>
+
+            <label for="aspect-ratio">Video format</label>
+            <select id="aspect-ratio">
+              <option value="16:9">YouTube Longform · 16:9</option>
+              <option value="9:16">YouTube Shorts · 9:16</option>
+            </select>
+
+            <details class="advanced" open>
+              <summary>API settings <span>Keys stay in this browser session</span></summary>
+              <label for="gemini-key">Google Gemini API key <em>Required</em></label>
+              <input id="gemini-key" type="password" autocomplete="off" placeholder="AIza…" required>
+              <label for="pollinations-key">Pollinations API key <em>May be required</em></label>
+              <input id="pollinations-key" type="password" autocomplete="off" placeholder="pk_… or sk_…">
+              <label for="hf-token">Hugging Face token <em>Optional for public Spaces</em></label>
+              <input id="hf-token" type="password" autocomplete="off" placeholder="hf_…">
+              <label for="hf-space">Hugging Face Space ID</label>
+              <input id="hf-space" type="text" value="" placeholder="owner/compatible-video-space">
+              <label for="hf-endpoint">Gradio API endpoint</label>
+              <input id="hf-endpoint" type="text" value="/predict" placeholder="/predict">
+              <label for="hf-payload">Gradio payload JSON</label>
+              <textarea id="hf-payload" rows="3" spellcheck="false">{"prompt":"{{PROMPT}}","image":"{{IMAGE_URL}}"}</textarea>
+              <p class="field-hint">Replace the payload fields to match the Space's “View API” page. Supported tokens: <code>{{PROMPT}}</code> and <code>{{IMAGE_URL}}</code>. The default payload is only a starting point; Space APIs differ.</p>
+            </details>
+
+            <button id="generate-btn" class="primary-button" type="submit">
+              <span class="button-star">✦</span><span id="button-label">Generate video</span><span class="button-arrow">↗</span>
+            </button>
+            <p class="privacy-note"><span>ⓘ</span> Keys are not saved by this page. Requests go directly to the selected providers.</p>
+          </form>
+        </aside>
+
+        <section class="panel pipeline" aria-label="Generation pipeline">
+          <div class="panel-heading output-heading">
+            <div>
+              <p class="eyebrow">YOUR WORKFLOW</p>
+              <h2>Creation pipeline</h2>
+            </div>
+            <span id="overall-status" class="status-pill">Ready</span>
+          </div>
+
+          <div class="pipeline-step" id="step-1">
+            <div class="step-icon">01</div>
+            <div class="step-body">
+              <div class="step-title-row"><h3>Prompt expansion</h3><span class="step-status">Waiting</span></div>
+              <p class="step-description">Turn your idea into a detailed cinematic direction.</p>
+              <div class="result-box"><p id="expanded-prompt" class="muted">Your expanded prompt will appear here.</p></div>
+            </div>
+          </div>
+
+          <div class="pipeline-step" id="step-2">
+            <div class="step-icon">02</div>
+            <div class="step-body">
+              <div class="step-title-row"><h3>Base keyframe</h3><span class="step-status">Waiting</span></div>
+              <p class="step-description">Create the visual reference for your scene.</p>
+              <div class="image-frame" id="keyframe-frame">
+                <div class="empty-state"><span class="empty-symbol">▧</span><span>Your keyframe will appear here</span></div>
+                <img id="keyframe-image" alt="Generated cinematic keyframe" hidden>
+              </div>
+              <a id="open-keyframe" class="text-link" href="#" target="_blank" rel="noopener" hidden>Open image in new tab ↗</a>
+            </div>
+          </div>
+
+          <div class="pipeline-step" id="step-3">
+            <div class="step-icon">03</div>
+            <div class="step-body">
+              <div class="step-title-row"><h3>Motion rendering</h3><span class="step-status">Waiting</span></div>
+              <p class="step-description">Try the configured Hugging Face Space, then the video fallback.</p>
+              <div class="video-frame">
+                <video id="final-video" controls playsinline hidden></video>
+                <div id="video-empty" class="empty-state"><span class="empty-symbol">▶</span><span>Your finished MP4 will appear here</span></div>
+              </div>
+              <div class="video-actions">
+                <a id="download-video" class="secondary-button disabled" href="#" download="ai-cinema-studio.mp4" aria-disabled="true">↓ Download MP4</a>
+                <span id="video-source" class="field-hint"></span>
+              </div>
+              <div id="error-box" class="error-box" role="alert" hidden></div>
+            </div>
+          </div>
+          <p class="disclaimer">AI output is best-effort. Free quotas, CORS policies, model availability, and provider APIs can change. Verify generated content and usage rights before publishing.</p>
+        </section>
+      </section>
+    </main>
+    <footer><span>AI CINEMA STUDIO</span><span>Made for curious creators · 2026</span></footer>
+  </div>
+</body>
+</html>
