@@ -447,7 +447,6 @@ function extractPollinationsUrl(value, depth = 0) {
 
 async function tryPollinationsVideo(prompt, ratio, providerImageUrl) {
   const params = new URLSearchParams({
-    model: 'community',
     aspectRatio: ratio,
     duration: '5',
     image: providerImageUrl
