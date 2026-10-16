@@ -1,3 +1,4 @@
+const BACKEND_URL = "/api";
 'use strict';
 
 const $ = (id) => document.getElementById(id);
